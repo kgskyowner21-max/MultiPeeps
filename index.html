@@ -18,7 +18,7 @@
 (function(){
  const cut=s=>String(s).startsWith('m:')?'media/'+String(s).slice(2):s;
  fetch('content.json?v='+Date.now()).then(r=>r.ok?r.json():null).then(D=>{
-  if(!D||!D.pages){document.body.innerHTML='<div style="padding:22vh 0;text-align:center;font-family:Arial,sans-serif;color:#68656b">This website is coming soon.</div>';return}
+  if(!D||!D.pages||!D.g){document.body.innerHTML='<div style="padding:22vh 0;text-align:center;font-family:Arial,sans-serif;color:#68656b">This website is coming soon.</div>';return}
   const q=new URLSearchParams(location.search).get('p'),pg=D.pages.find(p=>p.slug==q)||D.pages[0];
   for(const k in D.theme)document.documentElement.style.setProperty(k,D.theme[k]);
   document.title=pg==D.pages[0]?D.site.name:pg.title+' - '+D.site.name;

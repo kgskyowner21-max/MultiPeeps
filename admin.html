@@ -189,19 +189,20 @@ async function ghput(path,c64,msg){for(let i=0;i<3;i++){const ex=await ghget('/c
  if(r.ok)return;if(r.status!=409&&r.status!=422)throw new Error(r.status==401?'Token is wrong or expired':(r.status==403||r.status==404)?'Token has no write permission (needs Contents: Read and write)':'GitHub error '+r.status)}
  throw new Error('Could not save, please try again')}
 function gate(msg){$('app').style.display='none';$('gate').style.display='flex';$('ge').textContent=msg||''}
+const okFmt=o=>!!(o&&o.g&&Array.isArray(o.g.top)&&Array.isArray(o.g.bottom)&&o.theme&&o.site&&Array.isArray(o.pages)&&o.pages.length&&o.pages.every(p=>Array.isArray(p.blocks)&&p.blocks.every(b=>typeof b.h=='string')));
 function load(o){S.site=o.site;S.theme=o.theme;S.g=o.g;S.pages=o.pages}
 async function start(repo,tok){GH.repo=repo.trim().replace(/^https?:\/\/github\.com\//,'').replace(/\/+$/,'');GH.tok=tok.trim();
  if(!/^[\w.-]+\/[\w.-]+$/.test(GH.repo)||!GH.tok){gate('Enter the repository as username/repo and your token.');return}
  $('ge').textContent='Checking…';
  try{const r=await ghf('');if(r.status==401)throw new Error('Token is wrong or expired.');if(r.status==404)throw new Error('Repository not found, or the token has no access to it.');if(!r.ok)throw new Error('GitHub error '+r.status);
   const f=await ghget('/contents/content.json');let live=null;
-  if(f){try{const t=unb64(f.content);if(JSON.parse(t).pages)live=t}catch(e){}}
-  let dr=null;try{dr=JSON.parse(localStorage.getItem('sb_draft_'+GH.repo))}catch(e){}
+  let oldFmt=false;if(f){try{const t=unb64(f.content),o=JSON.parse(t);if(okFmt(o))live=t;else if(o&&o.pages)oldFmt=true}catch(e){}}
+  let dr=null;try{dr=JSON.parse(localStorage.getItem('sb_draft_'+GH.repo));if(!okFmt(JSON.parse(dr.d)))dr=null}catch(e){dr=null}
   let src=live;
   if(dr&&dr.d&&dr.d!=live){src=(dr.base===live||confirm("This computer has unpublished changes from earlier, but the website was updated since.\n\nOK = keep this computer's changes\nCancel = use the website version"))?dr.d:live}
   if(src)load(JSON.parse(src));else S=clone(DEF);
   try{localStorage.setItem('sb_gh',JSON.stringify({repo:GH.repo,tok:GH.tok}))}catch(e){}
-  userEmail=GH.repo;LIVE=live;pid=S.pages[0].id;hist=[snap()];hi=0;sel=null;ready=true;stat=live?'Connected':'Not published yet';
+  userEmail=GH.repo;LIVE=live;pid=S.pages[0].id;hist=[snap()];hi=0;sel=null;ready=true;stat=live?'Connected':(oldFmt?'Old version found. Click Publish to replace it with this site.':'Not published yet');
   $('gate').style.display='none';$('app').style.display='';render();save()
  }catch(e){gate(e.message)}}
 window.APP={init(){
