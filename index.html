@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#fff9f1">
+  <meta name="description" content="Multi Peeps — Exploring Talents. A global creative community for ideas, collaboration, events and workshops.">
+  <title>Multi Peeps</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<noscript>Please turn on JavaScript to view this website.</noscript>
+<script src="script.js"></script>
+<script>
+(function(){
+ const cut=s=>String(s).startsWith('m:')?'media/'+String(s).slice(2):s;
+ fetch('content.json?v='+Date.now()).then(r=>r.ok?r.json():null).then(D=>{
+  if(!D||!D.pages){document.body.innerHTML='<div style="padding:22vh 0;text-align:center;font-family:Arial,sans-serif;color:#68656b">This website is coming soon.</div>';return}
+  const q=new URLSearchParams(location.search).get('p'),pg=D.pages.find(p=>p.slug==q)||D.pages[0];
+  for(const k in D.theme)document.documentElement.style.setProperty(k,D.theme[k]);
+  document.title=pg==D.pages[0]?D.site.name:pg.title+' - '+D.site.name;
+  const m=document.querySelector('meta[name=description]');if(D.site.desc&&m)m.content=D.site.desc;
+  const h=b=>b.h;
+  document.body.innerHTML=D.g.top.map(h).join('')+'<main>'+pg.blocks.map(h).join('')+'</main>'+D.g.bottom.map(h).join('');
+  if(D.site.logo)document.querySelectorAll('.brand').forEach(b=>{b.classList.add('has-logo');const i=document.createElement('img');i.className='brand-logo';i.alt='';i.src=cut(D.site.logo);b.insertBefore(i,b.firstChild)});
+  window.initSite&&window.initSite();
+  if(location.hash){const e=document.getElementById(decodeURIComponent(location.hash.slice(1)));if(e)e.scrollIntoView()}
+ }).catch(()=>{document.body.innerHTML='<div style="padding:22vh 0;text-align:center;font-family:Arial,sans-serif;color:#68656b">This website is coming soon.</div>'});
+})();
+</script>
+</body>
+</html>
